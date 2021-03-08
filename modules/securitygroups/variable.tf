@@ -1,3 +1,9 @@
+variable region {
+  default     = "us-east-1"
+  description = "The region to deploy to."
+  type        = string
+}
+
 variable "name" {
   description = "Name of the Security Group"
   type        = string
@@ -14,13 +20,13 @@ variable "description" {
 }
 
 variable "ingress_rules" {
-  description = "A schema list of ingress rules for the Security Group, see <https://www.terraform.io/docs/providers/aws/r/security_group.html#ingress>"
+  description = "A schema list of ingress rules for the Security Group "
   type        = list
   default     = []
 }
 
 variable "egress_rules" {
-  description = "A schema list of egress rules for the Security Group, see <https://www.terraform.io/docs/providers/aws/r/security_group.html#egress>"
+  description = "A schema list of egress rules for the Security Group"
   type        = list
   default     = []
 }

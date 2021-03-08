@@ -102,7 +102,7 @@ EOF
 resource "aws_instance" "web_server" {
   ami                    = data.aws_ami.server_ami.id
   instance_type          = var.instance_type
-  user_data              = file("install_apache.sh")
+  user_data              = file("${path.module}/install_apache.sh")
   subnet_id              = var.subnet_ids
   key_name               = var.key_name
   vpc_security_group_ids = var.security_groups

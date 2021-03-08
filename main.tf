@@ -1,0 +1,160 @@
+
+###############
+#VPC
+##############
+module "vpc" {
+  source = "./modules/vpc"
+
+  name = var.name
+
+  cidr = "10.0.0.0/16"
+
+  private_subnets = ["10.0.1.0/24", "10.0.3.0/24"]
+  public_subnets  = ["10.0.0.0/24", "10.0.2.0/24"]
+
+  create_igw         = true
+  enable_nat_gateway = true
+  #  single_nat_gateway = true
+
+}
+
+#################
+# Security Groups
+#################
+# ELB SG
+################
+module "elb-sg" {
+  source = "./modules/securitygroups"
+
+  name        = var.name
+  description = "Public ELB Security Group"
+  vpc_id      = module.vpc.vpc_id
+  ingress_rules = [
+    {
+      "from_port"   = "80",
+      "to_port"     = "80",
+      "protocol"    = "tcp",
+      "cidr_blocks" = ["0.0.0.0/0"]
+    },
+    {
+      "from_port"   = "443",
+      "to_port"     = "443",
+      "protocol"    = "tcp",
+      "cidr_blocks" = ["0.0.0.0/0"]
+    }
+  ]
+  egress_rules = [
+    {
+      "from_port"   = "0",
+      "to_port"     = "0",
+      "protocol"    = "-1",
+      "cidr_blocks" = ["0.0.0.0/0"]
+    }
+  ]
+
+  revoke_rules_on_delete = true
+
+  tags = {
+    Name = "${var.name}-elb-sg"
+  }
+}
+###############
+# Web server SG
+################
+module "web-server-sg" {
+  source = "./modules/securitygroups"
+
+  name        = var.name
+  description = "EC2 Web server Security Group"
+  vpc_id      = module.vpc.vpc_id
+  ingress_rules = [
+    {
+      "from_port"   = "22",
+      "to_port"     = "22",
+      "protocol"    = "tcp",
+      "cidr_blocks" = ["1.2.3.4/32", "4.5.6.7/32"] // Restrict to perticular IPs like office IP
+    },
+    {
+      "from_port"   = "80",
+      "to_port"     = "80",
+      "protocol"    = "tcp",
+      "cidr_blocks" = ["0.0.0.0/0"]
+      //"security_groups" = [module.elb-sg.id]
+    }
+  ]
+  egress_rules = [
+    {
+      "from_port"   = "443",
+      "to_port"     = "443",
+      "protocol"    = "tcp",
+      "cidr_blocks" = ["0.0.0.0/0"]
+    }
+  ]
+
+  revoke_rules_on_delete = true
+
+  tags = {
+    Name = "${var.name}-sg"
+  }
+}
+
+##################################
+# EC2 Web Server
+##################################
+
+module "webserver" {
+  source = "./modules/ec2"
+
+  name            = var.name
+  ami_name        = var.ami_name
+  ami_owner       = var.ami_owner
+  instance_type   = var.instance_type
+  subnet_ids      = element(module.vpc.private_subnets, 0)
+  key_name        = var.key_name
+  security_groups = [module.web-server-sg.id]
+
+}
+
+##################################
+#  Web Server ELB
+##################################
+
+module "webserver-elb" {
+  source = "./modules/elb"
+
+  create_elb = var.create_elb
+
+  name            = var.name
+  subnets         = module.vpc.public_subnets
+  internal        = var.internal
+  security_groups = [module.elb-sg.id]
+
+  listener = [
+    {
+      instance_port     = "80"
+      instance_protocol = "http"
+      lb_port           = "80"
+      lb_protocol       = "http"
+    },
+    {
+      instance_port     = "443"
+      instance_protocol = "http"
+      lb_port           = "443"
+      lb_protocol       = "http"
+      //      ssl_certificate_id = module.acm.this_acm_certificate_arn
+    },
+  ]
+
+  health_check = {
+    target              = "HTTP:80/"
+    interval            = 30
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    timeout             = 5
+  }
+
+  create_attachment   = var.create_elb
+  number_of_instances = 1
+  instances           = [module.webserver.id]
+}
+
