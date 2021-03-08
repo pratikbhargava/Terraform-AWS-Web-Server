@@ -81,6 +81,13 @@ module "web-server-sg" {
       "protocol"    = "tcp",
       "cidr_blocks" = ["0.0.0.0/0"]
       //"security_groups" = [module.elb-sg.id]
+    },
+    {
+      "from_port"   = "443",
+      "to_port"     = "443",
+      "protocol"    = "tcp",
+      "cidr_blocks" = ["0.0.0.0/0"]
+      //"security_groups" = [module.elb-sg.id]
     }
   ]
   egress_rules = [
@@ -88,6 +95,12 @@ module "web-server-sg" {
       "from_port"   = "443",
       "to_port"     = "443",
       "protocol"    = "tcp",
+      "cidr_blocks" = ["0.0.0.0/0"]
+    },
+    {
+      "from_port"   = "0",
+      "to_port"     = "0",
+      "protocol"    = "-1",
       "cidr_blocks" = ["0.0.0.0/0"]
     }
   ]
