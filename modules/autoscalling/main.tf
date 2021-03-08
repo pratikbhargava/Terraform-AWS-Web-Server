@@ -16,11 +16,12 @@ resource "aws_launch_configuration" "lc" {
   }
   user_data = <<-EOF
                 #! /bin/bash
-		sudo apt update
+		sudo apt update -y && sudo apt upgrade -y
 		sudo apt install -y apache2
-		sudo systemctl start apache2
-		sudo systemctl enable apache2
-                echo "<h1>Sample Webserver using Terraform!!" | sudo tee  /var/www/html/index.html
+		sudo apache2ctl -v
+		sudo systemctl start apache2.service
+		sudo systemctl enable apache2.service
+		echo "<h1>Sample Web Server Deployed via Terraform</h1>" | sudo tee /var/www/html/index.html
   EOF
 
   lifecycle {
