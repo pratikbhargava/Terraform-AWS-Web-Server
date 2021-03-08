@@ -1,23 +1,37 @@
 variable "name" {
-  description = "Name of Security Group"
+  description = "Name of the Security Group"
   type        = string
-  default     = "secgrp-ew1-p-web-priv"
 }
 
-variable "region" {
-  description = "The AZ for this environment"
+variable "vpc_id" {
+  description = "VPC ID in which to create the Security Group"
   type        = string
-  default     = "eu-west-1"
 }
 
-variable "code_version" {
-  description = "version of code released"
+variable "description" {
+  description = "Description of the Security Group"
   type        = string
-  default     = "0.0.2"
 }
 
-variable "customer_name" {
+variable "ingress_rules" {
+  description = "A schema list of ingress rules for the Security Group, see <https://www.terraform.io/docs/providers/aws/r/security_group.html#ingress>"
+  type        = list
+  default     = []
+}
+
+variable "egress_rules" {
+  description = "A schema list of egress rules for the Security Group, see <https://www.terraform.io/docs/providers/aws/r/security_group.html#egress>"
+  type        = list
+  default     = []
+}
+
+variable "revoke_rules_on_delete" {
+  description = "Determines whether to forcibly remove rules when destroying the security group"
   type        = string
-  default     = "AllnOne Limited"
-  description = "Name of the customer"
+  default     = false
+}
+
+variable "tags" {
+  description = "A map of tags for the Security Group"
+  type        = map(string)
 }

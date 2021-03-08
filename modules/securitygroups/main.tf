@@ -1,71 +1,37 @@
-resource "aws_security_group" "web-sg" {
+resource "aws_security_group" "this" {
   name        = var.name
-  description = "web-private"
+  description = var.description
   vpc_id      = var.vpc_id
-  tags = {
-    Name = var.name
+  dynamic "ingress" {
+    for_each = var.ingress_rules
+    content {
+      cidr_blocks      = lookup(ingress.value, "cidr_blocks", null)
+      description      = lookup(ingress.value, "description", null)
+      from_port        = lookup(ingress.value, "from_port", null)
+      ipv6_cidr_blocks = lookup(ingress.value, "ipv6_cidr_blocks", null)
+      prefix_list_ids  = lookup(ingress.value, "prefix_list_ids", null)
+      protocol         = lookup(ingress.value, "protocol", null)
+      security_groups  = lookup(ingress.value, "security_groups", null)
+      self             = lookup(ingress.value, "self", null)
+      to_port          = lookup(ingress.value, "to_port", null)
+    }
   }
 
-  egress = [
-    {
-      cidr_blocks = [
-        "0.0.0.0/0",
-      ]
-      description      = ""
-      from_port        = 0
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      protocol         = "-1"
-      security_groups  = []
-      self             = false
-      to_port          = 0
-    },
-  ]
-
-  ingress = [
-    {
-      cidr_blocks      = var.cidr_blocks
-      description      = "SSH"
-      from_port        = 22
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      protocol         = "tcp"
-      security_groups  = []
-      self             = false
-      to_port          = 22
-    },
-    {
-      cidr_blocks      = var.vpc_cidr
-      description      = "SSM"
-      from_port        = 443
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      protocol         = "tcp"
-      security_groups  = []
-      self             = false
-      to_port          = 443
-    },
-    {
-      cidr_blocks      = []
-      description      = "https traffic in"
-      from_port        = 443
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      protocol         = "tcp"
-      security_groups  = var.security_groups
-      self             = false
-      to_port          = 443
-    },
-    {
-      cidr_blocks      = []
-      description      = "http traffic in"
-      from_port        = 80
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      protocol         = "tcp"
-      security_groups  = var.security_groups
-      self             = false
-      to_port          = 80
-    },
-  ]
+  dynamic "egress" {
+    for_each = var.egress_rules
+    content {
+      cidr_blocks      = lookup(egress.value, "cidr_blocks", null)
+      description      = lookup(egress.value, "description", null)
+      from_port        = lookup(egress.value, "from_port", null)
+      ipv6_cidr_blocks = lookup(egress.value, "ipv6_cidr_blocks", null)
+      prefix_list_ids  = lookup(egress.value, "prefix_list_ids", null)
+      protocol         = lookup(egress.value, "protocol", null)
+      security_groups  = lookup(egress.value, "security_groups", null)
+      self             = lookup(egress.value, "self", null)
+      to_port          = lookup(egress.value, "to_port", null)
+    }
+  }
+  revoke_rules_on_delete = var.revoke_rules_on_delete
+  tags                   = var.tags
 }
+
