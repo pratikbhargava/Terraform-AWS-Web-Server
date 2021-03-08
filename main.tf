@@ -26,7 +26,7 @@ module "vpc" {
 module "elb-sg" {
   source = "./modules/securitygroups"
 
-  name        = var.name
+  name        = format("%s-elb-sg", var.name)
   description = "Public ELB Security Group"
   vpc_id      = module.vpc.vpc_id
   ingress_rules = [
@@ -64,7 +64,7 @@ module "elb-sg" {
 module "web-server-sg" {
   source = "./modules/securitygroups"
 
-  name        = var.name
+  name        = format("%s-webserver-sg", var.name)
   description = "EC2 Web server Security Group"
   vpc_id      = module.vpc.vpc_id
   ingress_rules = [
@@ -124,7 +124,7 @@ module "webserver-elb" {
 
   create_elb = var.create_elb
 
-  name            = var.name
+  name            = format("%s-elb", var.name)
   subnets         = module.vpc.public_subnets
   internal        = var.internal
   security_groups = [module.elb-sg.id]
@@ -158,3 +158,35 @@ module "webserver-elb" {
   instances           = [module.webserver.id]
 }
 
+##################################
+#  Web Server Autoscaling
+##################################
+## Data lookup for AMI
+data "aws_ami" "server_ami" {
+
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = [var.ami_name]
+  }
+
+  owners = [var.ami_owner]
+}
+
+module "webserver-asg" {
+  source = "./modules/autoscalling"
+
+  #  create_elb = var.create_elb
+
+  name                 = format("%s-webserver-asg", var.name)
+  image_id             = data.aws_ami.server_ami.id
+  instance_type        = var.instance_type
+  key_name             = var.key_name
+  iam_instance_profile = module.webserver.profile_id
+  security_groups      = [module.web-server-sg.id]
+  subnet_ids           = [element(module.vpc.private_subnets, 0)]
+  root_vol_size        = var.root_vol_size
+  data_vol_size        = var.data_vol_size
+  elb_id               = module.webserver-elb.elb_id
+}

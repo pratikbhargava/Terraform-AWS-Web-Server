@@ -36,7 +36,8 @@ variable "instance_type" {
 variable "key_name" {
   type        = string
   description = "SSH Key name"
-  default     = "webserver"
+  #default     = "webserver"
+  default = "pratik-nextGen-AWS"
 }
 
 variable "root_vol_size" {

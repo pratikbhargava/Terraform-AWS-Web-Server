@@ -133,7 +133,7 @@ resource "aws_ebs_volume" "data_vol" {
 }
 
 resource "aws_volume_attachment" "ebs_att" {
-  device_name = "/dev/sdb"
+  device_name = "/dev/sdf"
   volume_id   = aws_ebs_volume.data_vol.id
   instance_id = aws_instance.web_server.id
 }

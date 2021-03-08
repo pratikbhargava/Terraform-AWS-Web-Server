@@ -79,6 +79,11 @@ output "voulme_ids" {
   value       = module.webserver.voulme_ids
 }
 
+output "profile_id" {
+  description = "EC2 instance profile id"
+  value       = module.webserver.profile_id
+}
+
 output "elb_id" {
   description = "The name of the ELB"
   value       = module.webserver-elb.elb_id

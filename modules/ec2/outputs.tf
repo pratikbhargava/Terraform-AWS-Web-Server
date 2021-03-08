@@ -33,3 +33,8 @@ output "voulme_ids" {
   value       = formatlist("Data Vol - %s,Root Vol - %s", (aws_ebs_volume.data_vol.id), (aws_instance.web_server.root_block_device.0.volume_id))
 }
 
+output "profile_id" {
+  description = "EC2 instance profile id"
+  value       = aws_iam_instance_profile.ssm-role-profile.id
+}
+

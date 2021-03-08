@@ -25,7 +25,7 @@ variable "disable_api_termination" {
 variable "image_id" {
   description = "The AMI ID if Image"
   type        = string
-  default     = "ami-0f7cfd001f4fa1b77"
+  default     = ""
 }
 
 variable "instance_type" {
@@ -72,7 +72,12 @@ variable "security_groups" {
 
 variable "subnet_ids" {
   description = "Subnet ID"
-  type        = list 
+  type        = list
   default     = []
 }
 
+variable "elb_id" {
+  description = "The name of the ELB"
+  type        = string
+  default     = ""
+}

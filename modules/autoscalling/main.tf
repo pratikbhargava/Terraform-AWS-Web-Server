@@ -10,16 +10,17 @@ resource "aws_launch_configuration" "lc" {
     volume_size = var.root_vol_size
   }
   ebs_block_device {
-     device_name = "/dev/sdb"
-     volume_type = "gp2"
+    device_name = "/dev/sdf"
+    volume_type = "gp2"
     volume_size = var.data_vol_size
   }
   user_data = <<-EOF
                 #! /bin/bash
-                sudo yum install httpd -y
-                sudo systemctl start httpd
-                sudo systemctl enable httpd
-                echo "<h1>Sample Webserver Network Nuts" | sudo tee  /var/www/html/index.html
+		sudo apt-get update
+		sudo apt-get install -y apache2
+		sudo systemctl start apache2
+		sudo systemctl enable apache2
+                echo "<h1>Sample Webserver using Terraform!!" | sudo tee  /var/www/html/index.html
   EOF
 
   lifecycle {
@@ -112,3 +113,7 @@ resource "aws_cloudwatch_metric_alarm" "scaledown-cpu-alarm" {
   alarm_actions   = [aws_autoscaling_policy.scaledown-cpu-policy.arn]
 }
 
+resource "aws_autoscaling_attachment" "asg_attachment" {
+  autoscaling_group_name = aws_autoscaling_group.asg.id
+  elb                    = var.elb_id
+}

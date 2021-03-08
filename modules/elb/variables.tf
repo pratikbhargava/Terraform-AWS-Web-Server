@@ -1,4 +1,4 @@
-variable region {
+variable "region" {
   default     = "us-east-1"
   description = "The region to deploy to."
   type        = string
@@ -70,7 +70,7 @@ variable "number_of_instances" {
 variable "elb" {
   description = "The name of the ELB"
   type        = string
-  default     = "xxdd"
+  default     = ""
 }
 
 variable "instances" {

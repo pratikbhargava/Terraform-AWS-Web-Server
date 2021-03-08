@@ -4,7 +4,7 @@ variable "name" {
   default     = "web-server"
 }
 
-variable region {
+variable "region" {
   default     = "us-east-1"
   description = "The region to deploy to."
   type        = string
@@ -20,12 +20,6 @@ variable "ami_owner" {
   description = "AMI owner name. For Amazon Linux 2 use amazon, and for Ubuntu use 099720109477."
   type        = string
   default     = "099720109477"
-}
-
-variable "disable_api_termination" {
-  description = "Enable termination protection for the jumphost."
-  type        = bool
-  default     = false
 }
 
 variable "instance_type" {
