@@ -5,12 +5,13 @@
 module "vpc" {
   source = "./modules/vpc"
 
-  name = var.name
+  create_vpc = true
+  name       = var.name
 
-  cidr = "10.0.0.0/16"
+  cidr = var.vpc_cidr
 
-  private_subnets = ["10.0.1.0/24", "10.0.3.0/24"]
-  public_subnets  = ["10.0.0.0/24", "10.0.2.0/24"]
+  private_subnets = var.private_subnets
+  public_subnets  = var.public_subnets
 
   create_igw         = true
   enable_nat_gateway = true

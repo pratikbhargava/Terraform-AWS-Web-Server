@@ -3,13 +3,33 @@ variable "region" {
   default     = "us-east-1"
 }
 
+variable "private_subnets" {
+  type        = list(string)
+  description = "List of Private subnets CIDRS will be created"
+  default     = ["10.0.1.0/24", "10.0.3.0/24"]
+}
+
+
+variable "public_subnets" {
+  type        = list(string)
+  description = "List of Public subnet Cidrs  will be created"
+  default     = ["10.0.0.0/24", "10.0.2.0/24"]
+}
+
+
 variable "name" {
   description = "Name to be used on all the resources as identifier"
   type        = string
   default     = "production"
 }
 
-variable "cidr" {
+variable "create_vpc" {
+  description = "Create the vpc or not"
+  type        = bool
+  default     = true
+}
+
+variable "vpc_cidr" {
   description = "The CIDR block for the VPC. Default value is a valid CIDR."
   type        = string
   default     = "10.0.0.0/16"
